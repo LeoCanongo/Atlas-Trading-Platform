@@ -4,6 +4,7 @@ from src.indicators.sma import add_sma
 from src.indicators.rsi import add_rsi
 from src.analysis.scorer import score_stock
 from src.indicators.macd import add_macd
+from src.indicators.adx import add_adx
 print("=" * 60)
 print("Atlas Trading Platform")
 print("Stock Analyzer")
@@ -21,11 +22,13 @@ df = add_sma(df, 20)
 df = add_sma(df, 50)
 df = add_rsi(df, 14)
 df = add_macd(df)
+df = add_adx(df)
 # Latest values
 latest = df.iloc[-1]
 rsi = latest["RSI_14"]
 macd = latest["MACD"]
 signal = latest["MACD_SIGNAL"]
+adx = latest["ADX"]
 price = latest["Close"]
 sma20 = latest["SMA_20"]
 sma50 = latest["SMA_50"]
@@ -33,7 +36,15 @@ score = 0
 reasons = []
 
 if not pd.isna(sma50):
-    score, reasons = score_stock(price, sma20, sma50, rsi, macd, signal)
+    score, reasons = score_stock(
+        price,
+        sma20,
+        sma50,
+        rsi,
+        macd,
+        signal,
+        adx
+    )
 print(f"\nCurrent Price : ${price:.2f}")
 print(f"20 Day SMA    : ${sma20:.2f}")
 
@@ -43,7 +54,12 @@ else:
     print(f"50 Day SMA    : ${sma50:.2f}")
 print(f"14 Day RSI : {rsi:.2f}")
 print(f"MACD       : {macd:.2f}")
+if adx > 25:
+    print("💪 ADX shows a strong trend.")
+else:
+    print("😴 ADX shows a weak or sideways market.")
 print(f"Signal     : {signal:.2f}")
+print(f"ADX         : {adx:.2f}")
 print("\nMarket Analysis")
 print("-" * 30)
 
@@ -66,7 +82,7 @@ else:
 print("\nAtlas Score")
 print("-" * 30)
 
-print(f"Score: {score}/5")
+print(f"Score: {score}/6")
 
 print("\nReasoning:")
 

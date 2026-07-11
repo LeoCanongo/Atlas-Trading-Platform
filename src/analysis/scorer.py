@@ -1,4 +1,4 @@
-def score_stock(price, sma20, sma50, rsi, macd, signal):
+def score_stock(price, sma20, sma50, rsi, macd, signal, adx):
     score = 0
     reasons = []
 
@@ -32,5 +32,12 @@ def score_stock(price, sma20, sma50, rsi, macd, signal):
         reasons.append("MACD is above its signal line (bullish momentum).")
     else:
         reasons.append("MACD is below its signal line (bearish momentum).")
+
+    # Rule 6
+    if adx > 25:
+        score += 1
+        reasons.append(f"ADX confirms a strong trend ({adx:.2f}).")
+    else:
+        reasons.append(f"ADX indicates a weak trend ({adx:.2f}).")
 
     return score, reasons
