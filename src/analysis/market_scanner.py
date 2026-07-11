@@ -1,8 +1,8 @@
 from pathlib import Path
 import pandas as pd
 
-from indicators.sma import add_sma
-from analysis.scorer import score_stock
+from src.indicators.sma import add_sma
+from src.analysis.scorer import score_stock
 
 print("=" * 60)
 print("ATLAS DAILY MARKET SCAN")

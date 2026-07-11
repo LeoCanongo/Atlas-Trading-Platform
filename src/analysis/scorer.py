@@ -1,4 +1,4 @@
-def score_stock(price, sma20, sma50):
+def score_stock(price, sma20, sma50, rsi, macd, signal):
     score = 0
     reasons = []
 
@@ -16,5 +16,21 @@ def score_stock(price, sma20, sma50):
     if sma20 > sma50:
         score += 1
         reasons.append("Short-term trend is stronger than the long-term trend.")
+
+    # Rule 4
+    if 40 <= rsi <= 70:
+        score += 1
+        reasons.append(f"RSI is healthy ({rsi:.2f}).")
+    elif rsi > 70:
+        reasons.append(f"RSI is overbought ({rsi:.2f}).")
+    else:
+        reasons.append(f"RSI is oversold ({rsi:.2f}).")
+
+    # Rule 5
+    if macd > signal:
+        score += 1
+        reasons.append("MACD is above its signal line (bullish momentum).")
+    else:
+        reasons.append("MACD is below its signal line (bearish momentum).")
 
     return score, reasons
