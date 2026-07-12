@@ -9,7 +9,7 @@ from src.indicators.volume import add_volume
 from src.indicators.atr import add_atr
 
 from src.analysis.scorer import score_stock
-
+from src.strategies.trend_strategy import evaluate_trend_strategy
 
 print("=" * 60)
 print("ATLAS MARKET SCANNER")
@@ -49,10 +49,15 @@ for stock_file in data_folder.glob("*.csv"):
 
     confidence = round(score / 7 * 100)
 
+    signal = evaluate_trend_strategy(score)
+
     results.append({
         "Ticker": ticker,
+        "Price": latest["Close"],
+        "ATR": latest["ATR"],
         "Score": score,
-        "Confidence": confidence
+        "Confidence": confidence,
+        "Signal": signal,
     })
 
 results = sorted(
@@ -68,16 +73,9 @@ print("-" * 50)
 
 for stock in results:
 
-    if stock["Score"] >= 6:
-        signal = "BUY 🟢"
-    elif stock["Score"] >= 4:
-        signal = "WATCH 🟡"
-    else:
-        signal = "AVOID 🔴"
-
     print(
         f"{stock['Ticker']:<10}"
         f"{str(stock['Score']) + '/7':<10}"
         f"{str(stock['Confidence']) + '%':<15}"
-        f"{signal}"
+        f"{stock['Signal']}"
     )

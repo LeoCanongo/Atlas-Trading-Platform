@@ -9,6 +9,7 @@ from src.indicators.volume import add_volume
 from src.indicators.atr import add_atr
 from src.analysis.trade_planner import create_trade_plan
 from src.risk.position_sizer import calculate_position_size
+from src.strategies.trend_strategy import evaluate_trend_strategy
 print("=" * 60)
 print("Atlas Trading Platform")
 print("Stock Analyzer")
@@ -55,6 +56,7 @@ if not pd.isna(sma50):
     volume_ratio,
 )
  plan = create_trade_plan(price, atr, score)
+ signal = evaluate_trend_strategy(score)
 print(f"\nCurrent Price : ${price:.2f}")
 print(f"20 Day SMA    : ${sma20:.2f}")
 
@@ -106,7 +108,7 @@ print("\n" + "=" * 30)
 print("TRADE PLAN")
 print("=" * 30)
 
-print(f"Recommendation : {plan['recommendation']}")
+print(f"Recommendation : {signal}")
 print(f"Entry Price    : ${plan['entry']:.2f}")
 print(f"Stop Loss      : ${plan['stop_loss']:.2f}")
 print(f"Take Profit    : ${plan['take_profit']:.2f}")
