@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Atlas AI</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>ATLAS AI</h1>
+
+<h2>Trading Dashboard</h2>
+
+{% if top_stock %}
+
+<div class="card">
+
+<h3>Top Opportunity</h3>
+
+<p><b>Ticker:</b> {{ top_stock.Ticker }}</p>
+<p><b>Score:</b> {{ top_stock.Score }}/7</p>
+<p><b>Confidence:</b> {{ top_stock.Confidence }}%</p>
+<p><b>Signal:</b> {{ top_stock.Signal }}</p>
+
+</div>
+
+{% endif %}
+
+<h2>Market Scanner</h2>
+
+<table>
+
+<tr>
+<th>Ticker</th>
+<th>Score</th>
+<th>Confidence</th>
+<th>Signal</th>
+</tr>
+
+{% for stock in stocks %}
+
+<tr>
+
+<td>{{ stock.Ticker }}</td>
+<td>{{ stock.Score }}/7</td>
+<td>{{ stock.Confidence }}%</td>
+<td>{{ stock.Signal }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</body>
+</html>
