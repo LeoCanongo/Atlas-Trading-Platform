@@ -1,4 +1,4 @@
-def score_stock(price, sma20, sma50, rsi, macd, signal, adx):
+def score_stock(price, sma20, sma50, rsi, macd, signal, adx, volume_ratio):
     score = 0
     reasons = []
 
@@ -39,5 +39,16 @@ def score_stock(price, sma20, sma50, rsi, macd, signal, adx):
         reasons.append(f"ADX confirms a strong trend ({adx:.2f}).")
     else:
         reasons.append(f"ADX indicates a weak trend ({adx:.2f}).")
+
+    # Rule 7
+    if volume_ratio >= 1.2:
+        score += 1
+        reasons.append(
+            f"Volume is {volume_ratio:.2f}x above average (strong confirmation)."
+        )
+    else:
+        reasons.append(
+            f"Volume is only {volume_ratio:.2f}x average."
+        )
 
     return score, reasons
