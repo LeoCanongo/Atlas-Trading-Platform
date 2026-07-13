@@ -1,5 +1,5 @@
 {
-    "cash": 6205.359991455078,
+    "cash": 1778.279974365234,
     "positions": [
         {
             "ticker": "AAPL",
@@ -9,6 +9,26 @@
         {
             "ticker": "AAPL",
             "shares": 7,
+            "entry": 316.2200012207031
+        },
+        {
+            "ticker": "AAPL",
+            "shares": 7,
+            "entry": 316.2200012207031
+        },
+        {
+            "ticker": "AAPL",
+            "shares": 7,
+            "entry": 316.2200012207031
+        },
+        {
+            "ticker": "AAPL",
+            "shares": 0,
+            "entry": 316.2200012207031
+        },
+        {
+            "ticker": "AAPL",
+            "shares": 0,
             "entry": 316.2200012207031
         }
     ]

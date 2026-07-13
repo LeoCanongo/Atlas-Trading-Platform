@@ -1,7 +1,9 @@
 import json
 from pathlib import Path
+from datetime import datetime
 
 ACCOUNT_FILE = Path("paper_account.json")
+HISTORY_FILE = Path("paper_trade_history.json")
 
 
 def load_account():
@@ -23,6 +25,38 @@ def save_account(account):
 
     with open(ACCOUNT_FILE, "w") as f:
         json.dump(account, f, indent=4)
+
+
+def load_history():
+
+    if HISTORY_FILE.exists():
+        with open(HISTORY_FILE, "r") as f:
+            return json.load(f)
+
+    return []
+
+
+def save_history(history):
+
+    with open(HISTORY_FILE, "w") as f:
+        json.dump(history, f, indent=4)
+
+
+def record_trade(action, ticker, shares, price):
+
+    history = load_history()
+
+    history.append(
+        {
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "action": action,
+            "ticker": ticker,
+            "shares": shares,
+            "price": price,
+        }
+    )
+
+    save_history(history)
 
 
 def buy_stock(ticker, shares, price):
@@ -47,6 +81,13 @@ def buy_stock(ticker, shares, price):
 
     save_account(account)
 
+    record_trade(
+        "BUY",
+        ticker,
+        shares,
+        price
+    )
+
     print(f"✅ Bought {shares} shares of {ticker} @ ${price:.2f}")
 
 
@@ -65,6 +106,13 @@ def sell_stock(ticker, price):
             account["positions"].remove(position)
 
             save_account(account)
+
+            record_trade(
+                "SELL",
+                ticker,
+                position["shares"],
+                price
+            )
 
             print(f"✅ Sold {ticker} @ ${price:.2f}")
 
@@ -100,7 +148,5 @@ def show_account():
 
 
 if __name__ == "__main__":
-
-    buy_stock("AAPL", 5, 316.22)
 
     show_account()

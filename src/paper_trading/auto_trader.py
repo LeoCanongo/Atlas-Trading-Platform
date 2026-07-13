@@ -2,6 +2,9 @@ from src.analysis.market_scanner import results
 from src.paper_trading.paper_trader import buy_stock
 from src.analysis.trade_planner import create_trade_plan
 from src.risk.position_sizer import calculate_position_size
+from src.config.settings import load_settings
+
+SETTINGS = load_settings()
 
 print("=" * 50)
 print("ATLAS AUTO PAPER TRADER")
@@ -30,17 +33,15 @@ plan = create_trade_plan(
     score
 )
 
-# Position sizing
+# Position sizing using website settings
 position = calculate_position_size(
-    account_size=10000,
-    risk_percent=1,
+    account_size=SETTINGS["account_size"],
+    risk_percent=SETTINGS["risk_percent"],
     entry_price=plan["entry"],
     stop_loss=plan["stop_loss"]
 )
 
 shares = position["shares"]
-print(f"Risk Amount : ${position['dollar_risk']:.2f}")
-print(f"Position Val: ${position['position_value']:.2f}")
 
 print("\nExecuting Paper Trade...\n")
 
@@ -52,9 +53,11 @@ buy_stock(
 
 print("\nTrade Summary")
 print("-" * 40)
-print(f"Ticker      : {ticker}")
-print(f"Entry       : ${plan['entry']:.2f}")
-print(f"Stop Loss   : ${plan['stop_loss']:.2f}")
-print(f"Take Profit : ${plan['take_profit']:.2f}")
-print(f"Shares      : {shares}")
-print(f"Confidence  : {plan['confidence']}%")
+print(f"Ticker        : {ticker}")
+print(f"Entry         : ${plan['entry']:.2f}")
+print(f"Stop Loss     : ${plan['stop_loss']:.2f}")
+print(f"Take Profit   : ${plan['take_profit']:.2f}")
+print(f"Shares        : {shares}")
+print(f"Risk Amount   : ${position['dollar_risk']:.2f}")
+print(f"Position Value: ${position['position_value']:.2f}")
+print(f"Confidence    : {plan['confidence']}%")

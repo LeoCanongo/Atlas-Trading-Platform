@@ -15,52 +15,160 @@
 
 <div class="container">
 
-<h1>ATLAS AI</h1>
+    <h1>ATLAS AI</h1>
 
-<h2>Trading Dashboard</h2>
+    <div class="card">
 
-{% if top_stock %}
+        <h2>Paper Account</h2>
 
-<div class="card">
+        <p><strong>Cash:</strong> ${{ "%.2f"|format(account.cash) }}</p>
+        <p><strong>Open Positions:</strong> {{ account.positions|length }}</p>
 
-<h3>Top Opportunity</h3>
+    </div>
 
-<p><b>Ticker:</b> {{ top_stock.Ticker }}</p>
-<p><b>Score:</b> {{ top_stock.Score }}/7</p>
-<p><b>Confidence:</b> {{ top_stock.Confidence }}%</p>
-<p><b>Signal:</b> {{ top_stock.Signal }}</p>
+    <div class="card">
 
-</div>
+        <h2>Settings</h2>
 
-{% endif %}
+        <form method="POST">
 
-<h2>Market Scanner</h2>
+            <label>Account Size</label><br>
+            <input
+                type="number"
+                name="account_size"
+                value="{{ settings.account_size }}">
+            <br><br>
 
-<table>
+            <label>Risk Per Trade (%)</label><br>
+            <input
+                type="number"
+                name="risk_percent"
+                value="{{ settings.risk_percent }}">
+            <br><br>
 
-<tr>
-<th>Ticker</th>
-<th>Score</th>
-<th>Confidence</th>
-<th>Signal</th>
-</tr>
+            <label>Minimum Atlas Score</label><br>
+            <input
+                type="number"
+                name="minimum_score"
+                value="{{ settings.minimum_score }}">
+            <br><br>
 
-{% for stock in stocks %}
+            <button type="submit">
+                Save Settings
+            </button>
 
-<tr>
+        </form>
 
-<td>{{ stock.Ticker }}</td>
-<td>{{ stock.Score }}/7</td>
-<td>{{ stock.Confidence }}%</td>
-<td>{{ stock.Signal }}</td>
+    </div>
 
-</tr>
+    <div class="card">
 
-{% endfor %}
+        <h2>Open Positions</h2>
 
-</table>
+        {% if account.positions %}
+
+        <table>
+
+            <tr>
+                <th>Ticker</th>
+                <th>Shares</th>
+                <th>Entry Price</th>
+            </tr>
+
+            {% for position in account.positions %}
+
+            <tr>
+
+                <td>{{ position.ticker }}</td>
+                <td>{{ position.shares }}</td>
+                <td>${{ "%.2f"|format(position.entry) }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+        {% else %}
+
+        <p>No open positions.</p>
+
+        {% endif %}
+
+    </div>
+
+    <div class="card">
+
+        <h2>Market Scanner</h2>
+
+        <table>
+
+            <tr>
+                <th>Ticker</th>
+                <th>Score</th>
+                <th>Confidence</th>
+                <th>Signal</th>
+            </tr>
+
+            {% for stock in stocks %}
+
+            <tr>
+
+                <td>{{ stock.Ticker }}</td>
+                <td>{{ stock.Score }}/7</td>
+                <td>{{ stock.Confidence }}%</td>
+                <td>{{ stock.Signal }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Trade History</h2>
+
+        {% if history %}
+
+        <table>
+
+            <tr>
+                <th>Date</th>
+                <th>Action</th>
+                <th>Ticker</th>
+                <th>Shares</th>
+                <th>Price</th>
+            </tr>
+
+            {% for trade in history|reverse %}
+
+            <tr>
+
+                <td>{{ trade.date }}</td>
+                <td>{{ trade.action }}</td>
+                <td>{{ trade.ticker }}</td>
+                <td>{{ trade.shares }}</td>
+                <td>${{ "%.2f"|format(trade.price) }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+        {% else %}
+
+        <p>No trades yet.</p>
+
+        {% endif %}
+
+    </div>
 
 </div>
 
 </body>
+
 </html>
