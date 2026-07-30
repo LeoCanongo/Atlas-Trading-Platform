@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect
 
 from src.analysis.market_scanner import results
 from src.analytics.trade_analytics import get_trade_statistics
+from src.backtests.backtester import run_backtest
 from src.config.settings import SETTINGS, save_settings
 from src.paper_trading.paper_trader import load_account, load_history
 from src.paper_trading.portfolio_manager import get_portfolio_summary
@@ -12,6 +13,11 @@ from src.engine.bot_controller import (
     stop_bot,
     run_once,
     bot_running,
+)
+from src.strategies.strategy_manager import (
+    get_active_strategy_name,
+    get_available_strategies,
+    set_active_strategy,
 )
 
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -26,9 +32,52 @@ app = Flask(
 @app.route("/", methods=["GET", "POST"])
 def dashboard():
 
+    backtest = None
+
     if request.method == "POST":
 
         action = request.form.get("action")
+
+        if action == "strategy":
+
+            strategy = request.form.get("strategy")
+
+            set_active_strategy(strategy)
+
+            run_once()
+
+            return redirect("/")
+
+        if action == "backtest":
+
+            symbol = request.form.get("symbol", "AAPL").upper()
+
+            backtest = run_backtest(symbol)
+
+            account = load_account()
+            history = load_history()
+
+            price_lookup = {}
+
+            for stock in results:
+                price_lookup[stock["Ticker"]] = stock["Price"]
+
+            portfolio = get_portfolio_summary(price_lookup)
+            stats = get_trade_statistics()
+
+            return render_template(
+                "dashboard.html",
+                stocks=results,
+                settings=SETTINGS,
+                account=account,
+                history=history,
+                portfolio=portfolio,
+                stats=stats,
+                bot_running=bot_running(),
+                backtest=backtest,
+                active_strategy=get_active_strategy_name(),
+                strategies=get_available_strategies(),
+            )
 
         if action == "start":
             start_bot()
@@ -70,6 +119,9 @@ def dashboard():
         portfolio=portfolio,
         stats=stats,
         bot_running=bot_running(),
+        backtest=backtest,
+        active_strategy=get_active_strategy_name(),
+        strategies=get_available_strategies(),
     )
 
 

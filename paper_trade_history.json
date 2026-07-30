@@ -47,5 +47,12 @@
         "ticker": "AMZN",
         "shares": 4,
         "price": 247.0399932861328
+    },
+    {
+        "date": "2026-07-29 23:46:18",
+        "action": "BUY",
+        "ticker": "MSFT",
+        "shares": 2,
+        "price": 384.3599853515625
     }
 ]

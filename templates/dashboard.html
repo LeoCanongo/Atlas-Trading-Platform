@@ -72,6 +72,52 @@ value="scan">
 
 <div class="card">
 
+<h2>Strategy</h2>
+
+<p>
+
+<strong>Current Strategy:</strong>
+{{ strategies[active_strategy].name }}
+
+</p>
+
+<form method="POST">
+
+<input
+type="hidden"
+name="action"
+value="strategy">
+
+<select name="strategy">
+
+{% for key, strategy in strategies.items() %}
+
+<option
+value="{{ key }}"
+{% if key == active_strategy %}selected{% endif %}>
+
+{{ strategy.name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+<br><br>
+
+<button type="submit">
+
+Change Strategy
+
+</button>
+
+</form>
+
+</div>
+
+<div class="card">
+
 <h2>Portfolio Summary</h2>
 
 <p><strong>Total Portfolio:</strong>
@@ -88,61 +134,6 @@ ${{ "%.2f"|format(portfolio.unrealized_pl) }}</p>
 
 <p><strong>Open Positions:</strong>
 {{ portfolio.positions|length }}</p>
-
-</div>
-
-<div class="card">
-
-<h2>Trade Analytics</h2>
-
-<table>
-
-<tr>
-<td><strong>Total Trades</strong></td>
-<td>{{ stats.total_trades }}</td>
-</tr>
-
-<tr>
-<td><strong>Wins</strong></td>
-<td>{{ stats.wins }}</td>
-</tr>
-
-<tr>
-<td><strong>Losses</strong></td>
-<td>{{ stats.losses }}</td>
-</tr>
-
-<tr>
-<td><strong>Win Rate</strong></td>
-<td>{{ "%.2f"|format(stats.win_rate) }}%</td>
-</tr>
-
-<tr>
-<td><strong>Average Gain</strong></td>
-<td>{{ "%.2f"|format(stats.average_gain) }}%</td>
-</tr>
-
-<tr>
-<td><strong>Average Loss</strong></td>
-<td>{{ "%.2f"|format(stats.average_loss) }}%</td>
-</tr>
-
-<tr>
-<td><strong>Average Return</strong></td>
-<td>{{ "%.2f"|format(stats.average_return) }}%</td>
-</tr>
-
-<tr>
-<td><strong>Largest Winner</strong></td>
-<td>{{ "%.2f"|format(stats.largest_winner) }}%</td>
-</tr>
-
-<tr>
-<td><strong>Largest Loser</strong></td>
-<td>{{ "%.2f"|format(stats.largest_loser) }}%</td>
-</tr>
-
-</table>
 
 </div>
 
@@ -233,6 +224,125 @@ Save Settings
 {% else %}
 
 <p>No open positions.</p>
+
+{% endif %}
+
+</div>
+
+<div class="card">
+
+<h2>Backtester</h2>
+
+<form method="POST">
+
+<input
+type="hidden"
+name="action"
+value="backtest">
+
+<label>Stock Symbol</label><br>
+
+<input
+type="text"
+name="symbol"
+placeholder="AAPL"
+value="AAPL">
+
+<br><br>
+
+<button type="submit">
+
+Run Backtest
+
+</button>
+
+</form>
+
+{% if backtest %}
+
+<hr>
+
+<table>
+
+<tr>
+<td><strong>Starting Balance</strong></td>
+<td>${{ "%.2f"|format(backtest.starting_balance) }}</td>
+</tr>
+
+<tr>
+<td><strong>Ending Balance</strong></td>
+<td>${{ "%.2f"|format(backtest.ending_balance) }}</td>
+</tr>
+
+<tr>
+<td><strong>Total Trades</strong></td>
+<td>{{ backtest.trades }}</td>
+</tr>
+
+<tr>
+<td><strong>Winning Trades</strong></td>
+<td>{{ backtest.wins }}</td>
+</tr>
+
+<tr>
+<td><strong>Losing Trades</strong></td>
+<td>{{ backtest.losses }}</td>
+</tr>
+
+<tr>
+<td><strong>Win Rate</strong></td>
+<td>{{ "%.2f"|format(backtest.win_rate) }}%</td>
+</tr>
+
+<tr>
+<td><strong>Average Return</strong></td>
+<td>{{ "%.2f"|format(backtest.average_return) }}%</td>
+</tr>
+
+<tr>
+<td><strong>Average Win</strong></td>
+<td>{{ "%.2f"|format(backtest.average_winner) }}%</td>
+</tr><tr>
+<td><strong>Average Loss</strong></td>
+<td>{{ "%.2f"|format(backtest.average_loser) }}%</td>
+</tr>
+
+<tr>
+<td><strong>Profit Factor</strong></td>
+<td>{{ "%.2f"|format(backtest.profit_factor) }}</td>
+</tr>
+
+<tr>
+<td><strong>Expectancy</strong></td>
+<td>{{ "%.2f"|format(backtest.expectancy) }}%</td>
+</tr>
+
+<tr>
+<td><strong>Sharpe Ratio</strong></td>
+<td>{{ "%.2f"|format(backtest.sharpe_ratio) }}</td>
+</tr>
+
+<tr>
+<td><strong>Max Drawdown</strong></td>
+<td>{{ "%.2f"|format(backtest.max_drawdown) }}%</td>
+</tr>
+
+<tr>
+<td><strong>Average Trade Duration</strong></td>
+<td>{{ "%.2f"|format(backtest.average_duration) }} days</td>
+</tr>
+
+<tr>
+<td><strong>Shortest Trade</strong></td>
+<td>{{ backtest.shortest_trade }} days</td>
+</tr>
+
+<tr>
+<td><strong>Longest Trade</strong></td>
+<td>{{ backtest.longest_trade }} days</td>
+</tr>
+
+</table>
 
 {% endif %}
 

@@ -9,7 +9,7 @@ from src.indicators.volume import add_volume
 from src.indicators.atr import add_atr
 
 from src.analysis.scorer import score_stock
-from src.strategies.trend_strategy import evaluate_trend_strategy
+from src.strategies.strategy_manager import get_active_strategy
 
 print("=" * 60)
 print("ATLAS MARKET SCANNER")
@@ -17,6 +17,8 @@ print("=" * 60)
 
 project_root = Path(__file__).parent.parent.parent
 data_folder = project_root / "data" / "historical"
+
+strategy = get_active_strategy()
 
 results = []
 
@@ -49,7 +51,7 @@ for stock_file in data_folder.glob("*.csv"):
 
     confidence = round(score / 7 * 100)
 
-    signal = evaluate_trend_strategy(score)
+    signal = strategy.evaluate(score)
 
     results.append({
         "Ticker": ticker,

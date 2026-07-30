@@ -5,16 +5,31 @@ def should_buy(score):
     return score >= 6
 
 
+class TrendStrategy:
+    """
+    Default Atlas trend-following strategy.
+    """
+
+    name = "Trend Following"
+
+    def evaluate(self, score):
+
+        if score >= 6:
+            return "BUY"
+
+        elif score >= 4:
+            return "WATCH"
+
+        return "AVOID"
+
+
+trend_strategy = TrendStrategy()
+
+
 def evaluate_trend_strategy(score):
     """
-    Returns a trading signal based on the Atlas score.
+    Backwards-compatible wrapper.
+    Existing code can still call this function.
     """
 
-    if score >= 6:
-        return "BUY"
-
-    elif score >= 4:
-        return "WATCH"
-
-    else:
-        return "AVOID"
+    return trend_strategy.evaluate(score)
