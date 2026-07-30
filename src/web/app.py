@@ -1,17 +1,17 @@
 from pathlib import Path
+
 from flask import Flask, render_template, request, redirect
 
 from src.analysis.market_scanner import results
-from src.config.settings import (
-    SETTINGS,
-    save_settings,
-)
-from src.paper_trading.paper_trader import (
-    load_account,
-    load_history,
-)
-from src.paper_trading.portfolio_manager import (
-    get_portfolio_summary,
+from src.analytics.trade_analytics import get_trade_statistics
+from src.config.settings import SETTINGS, save_settings
+from src.paper_trading.paper_trader import load_account, load_history
+from src.paper_trading.portfolio_manager import get_portfolio_summary
+from src.engine.bot_controller import (
+    start_bot,
+    stop_bot,
+    run_once,
+    bot_running,
 )
 
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -28,17 +28,23 @@ def dashboard():
 
     if request.method == "POST":
 
-        SETTINGS["account_size"] = float(
-            request.form["account_size"]
-        )
+        action = request.form.get("action")
 
-        SETTINGS["risk_percent"] = float(
-            request.form["risk_percent"]
-        )
+        if action == "start":
+            start_bot()
+            return redirect("/")
 
-        SETTINGS["minimum_score"] = int(
-            request.form["minimum_score"]
-        )
+        if action == "stop":
+            stop_bot()
+            return redirect("/")
+
+        if action == "scan":
+            run_once()
+            return redirect("/")
+
+        SETTINGS["account_size"] = float(request.form["account_size"])
+        SETTINGS["risk_percent"] = float(request.form["risk_percent"])
+        SETTINGS["minimum_score"] = int(request.form["minimum_score"])
 
         save_settings(SETTINGS)
 
@@ -53,6 +59,7 @@ def dashboard():
         price_lookup[stock["Ticker"]] = stock["Price"]
 
     portfolio = get_portfolio_summary(price_lookup)
+    stats = get_trade_statistics()
 
     return render_template(
         "dashboard.html",
@@ -61,8 +68,10 @@ def dashboard():
         account=account,
         history=history,
         portfolio=portfolio,
+        stats=stats,
+        bot_running=bot_running(),
     )
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

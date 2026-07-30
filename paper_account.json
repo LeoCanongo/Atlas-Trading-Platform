@@ -1,4 +1,26 @@
 {
-    "cash": 10086.33999633789,
-    "positions": []
+    "cash": 7518.0400390625,
+    "positions": [
+        {
+            "ticker": "AAPL",
+            "shares": 3,
+            "entry": 316.2200012207031,
+            "stop_loss": 302.77784946986606,
+            "take_profit": 343.10430472237726
+        },
+        {
+            "ticker": "META",
+            "shares": 1,
+            "entry": 631.47998046875,
+            "stop_loss": 594.3581978934152,
+            "take_profit": 705.7235456194196
+        },
+        {
+            "ticker": "AMZN",
+            "shares": 4,
+            "entry": 247.0399932861328,
+            "stop_loss": 234.6307133265904,
+            "take_profit": 271.8585532052176
+        }
+    ]
 }

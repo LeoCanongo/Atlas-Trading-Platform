@@ -8,86 +8,93 @@ from src.analysis.trade_planner import create_trade_plan
 from src.risk.position_sizer import calculate_position_size
 from src.config.settings import load_settings
 
-SETTINGS = load_settings()
 
-print("=" * 50)
-print("ATLAS AUTO PAPER TRADER")
-print("=" * 50)
+def main():
 
-# ------------------------------------------
-# Load account
-# ------------------------------------------
+    SETTINGS = load_settings()
 
-account = load_account()
+    print("=" * 50)
+    print("ATLAS AUTO PAPER TRADER")
+    print("=" * 50)
 
-# ------------------------------------------
-# Build latest price lookup
-# ------------------------------------------
+    # ------------------------------------------
+    # Load account
+    # ------------------------------------------
 
-price_lookup = {}
+    account = load_account()
 
-for stock in results:
-    price_lookup[stock["Ticker"]] = stock["Price"]
+    # ------------------------------------------
+    # Build latest price lookup
+    # ------------------------------------------
 
-# ------------------------------------------
-# Manage existing positions
-# ------------------------------------------
+    price_lookup = {}
 
-check_positions(price_lookup)
+    for stock in results:
+        price_lookup[stock["Ticker"]] = stock["Price"]
 
-# ------------------------------------------
-# Find a stock we don't already own
-# ------------------------------------------
+    # ------------------------------------------
+    # Manage existing positions
+    # ------------------------------------------
 
-best = None
+    check_positions(price_lookup)
 
-for stock in results:
+    # ------------------------------------------
+    # Find a stock we don't already own
+    # ------------------------------------------
 
-    already_owned = False
+    best = None
 
-    for position in account["positions"]:
+    for stock in results:
 
-        if position["ticker"] == stock["Ticker"]:
-            already_owned = True
+        already_owned = False
+
+        for position in account["positions"]:
+
+            if position["ticker"] == stock["Ticker"]:
+                already_owned = True
+                break
+
+        if not already_owned:
+            best = stock
             break
 
-    if not already_owned:
-        best = stock
-        break
+    if best is None:
 
-if best is None:
+        print("\nNo new trading opportunities.")
+        return
 
-    print("\nNo new trading opportunities.")
-    quit()
+    ticker = best["Ticker"]
+    price = best["Price"]
+    score = best["Score"]
+    atr = best["ATR"]
 
-ticker = best["Ticker"]
-price = best["Price"]
-score = best["Score"]
-atr = best["ATR"]
+    print(f"\nSelected Stock: {ticker}")
 
-print(f"\nSelected Stock: {ticker}")
+    plan = create_trade_plan(
+        price,
+        atr,
+        score,
+    )
 
-plan = create_trade_plan(
-    price,
-    atr,
-    score,
-)
+    position = calculate_position_size(
+        account_size=SETTINGS["account_size"],
+        risk_percent=SETTINGS["risk_percent"],
+        entry_price=plan["entry"],
+        stop_loss=plan["stop_loss"],
+    )
 
-position = calculate_position_size(
-    account_size=SETTINGS["account_size"],
-    risk_percent=SETTINGS["risk_percent"],
-    entry_price=plan["entry"],
-    stop_loss=plan["stop_loss"],
-)
+    shares = position["shares"]
 
-shares = position["shares"]
+    buy_stock(
+        ticker=ticker,
+        shares=shares,
+        price=plan["entry"],
+        stop_loss=plan["stop_loss"],
+        take_profit=plan["take_profit"],
+    )
 
-buy_stock(
-    ticker=ticker,
-    shares=shares,
-    price=plan["entry"],
-    stop_loss=plan["stop_loss"],
-    take_profit=plan["take_profit"],
-)
+    print("\nTrade Complete")
 
-print("\nTrade Complete")
+
+if __name__ == "__main__":
+    main()

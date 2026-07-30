@@ -19,6 +19,59 @@
 
 <div class="card">
 
+<h2>Bot Controller</h2>
+
+<p>
+
+Status:
+
+{% if bot_running %}
+
+🟢 Running
+
+{% else %}
+
+🔴 Stopped
+
+{% endif %}
+
+</p>
+
+<form method="POST">
+
+<button
+type="submit"
+name="action"
+value="start">
+
+▶ Start Bot
+
+</button>
+
+<button
+type="submit"
+name="action"
+value="stop">
+
+■ Stop Bot
+
+</button>
+
+<button
+type="submit"
+name="action"
+value="scan">
+
+⟳ Run One Cycle
+
+</button>
+
+</form>
+
+</div>
+
+<div class="card">
+
 <h2>Portfolio Summary</h2>
 
 <p><strong>Total Portfolio:</strong>
@@ -38,6 +91,60 @@ ${{ "%.2f"|format(portfolio.unrealized_pl) }}</p>
 
 </div>
 
+<div class="card">
+
+<h2>Trade Analytics</h2>
+
+<table>
+
+<tr>
+<td><strong>Total Trades</strong></td>
+<td>{{ stats.total_trades }}</td>
+</tr>
+
+<tr>
+<td><strong>Wins</strong></td>
+<td>{{ stats.wins }}</td>
+</tr>
+
+<tr>
+<td><strong>Losses</strong></td>
+<td>{{ stats.losses }}</td>
+</tr>
+
+<tr>
+<td><strong>Win Rate</strong></td>
+<td>{{ "%.2f"|format(stats.win_rate) }}%</td>
+</tr>
+
+<tr>
+<td><strong>Average Gain</strong></td>
+<td>{{ "%.2f"|format(stats.average_gain) }}%</td>
+</tr>
+
+<tr>
+<td><strong>Average Loss</strong></td>
+<td>{{ "%.2f"|format(stats.average_loss) }}%</td>
+</tr>
+
+<tr>
+<td><strong>Average Return</strong></td>
+<td>{{ "%.2f"|format(stats.average_return) }}%</td>
+</tr>
+
+<tr>
+<td><strong>Largest Winner</strong></td>
+<td>{{ "%.2f"|format(stats.largest_winner) }}%</td>
+</tr>
+
+<tr>
+<td><strong>Largest Loser</strong></td>
+<td>{{ "%.2f"|format(stats.largest_loser) }}%</td>
+</tr>
+
+</table>
+
+</div>
 
 <div class="card">
 
@@ -81,7 +188,6 @@ Save Settings
 </form>
 
 </div>
-
 
 <div class="card">
 
@@ -132,7 +238,6 @@ Save Settings
 
 </div>
 
-
 <div class="card">
 
 <h2>Market Scanner</h2>
@@ -167,7 +272,6 @@ Save Settings
 </table>
 
 </div>
-
 
 <div class="card">
 
