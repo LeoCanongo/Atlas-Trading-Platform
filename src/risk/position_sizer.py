@@ -1,6 +1,8 @@
 def calculate_position_size(account_size, risk_percent, entry_price, stop_loss):
     """
-    Calculates the recommended position size based on risk.
+    Calculates the recommended position size based on:
+    1. Maximum risk per trade
+    2. Maximum cash available
 
     Returns:
         dict
@@ -15,8 +17,14 @@ def calculate_position_size(account_size, risk_percent, entry_price, stop_loss):
     if risk_per_share == 0:
         raise ValueError("Entry price and stop loss cannot be the same.")
 
-    # Number of shares
-    shares = int(dollar_risk // risk_per_share)
+    # Shares allowed by risk
+    risk_shares = int(dollar_risk // risk_per_share)
+
+    # Shares affordable with available cash
+    cash_shares = int(account_size // entry_price)
+
+    # Use the smaller of the two
+    shares = min(risk_shares, cash_shares)
 
     # Total position value
     position_value = shares * entry_price
@@ -28,6 +36,8 @@ def calculate_position_size(account_size, risk_percent, entry_price, stop_loss):
         "entry_price": entry_price,
         "stop_loss": stop_loss,
         "risk_per_share": risk_per_share,
+        "risk_shares": risk_shares,
+        "cash_shares": cash_shares,
         "shares": shares,
         "position_value": position_value,
     }

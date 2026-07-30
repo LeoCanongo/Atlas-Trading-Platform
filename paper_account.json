@@ -1,35 +1,4 @@
 {
-    "cash": 1778.279974365234,
-    "positions": [
-        {
-            "ticker": "AAPL",
-            "shares": 5,
-            "entry": 316.22
-        },
-        {
-            "ticker": "AAPL",
-            "shares": 7,
-            "entry": 316.2200012207031
-        },
-        {
-            "ticker": "AAPL",
-            "shares": 7,
-            "entry": 316.2200012207031
-        },
-        {
-            "ticker": "AAPL",
-            "shares": 7,
-            "entry": 316.2200012207031
-        },
-        {
-            "ticker": "AAPL",
-            "shares": 0,
-            "entry": 316.2200012207031
-        },
-        {
-            "ticker": "AAPL",
-            "shares": 0,
-            "entry": 316.2200012207031
-        }
-    ]
+    "cash": 10086.33999633789,
+    "positions": []
 }

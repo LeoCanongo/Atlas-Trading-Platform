@@ -1,5 +1,9 @@
 from src.analysis.market_scanner import results
-from src.paper_trading.paper_trader import buy_stock
+from src.paper_trading.paper_trader import (
+    buy_stock,
+    load_account,
+)
+from src.paper_trading.position_manager import check_positions
 from src.analysis.trade_planner import create_trade_plan
 from src.risk.position_sizer import calculate_position_size
 from src.config.settings import load_settings
@@ -10,12 +14,51 @@ print("=" * 50)
 print("ATLAS AUTO PAPER TRADER")
 print("=" * 50)
 
-if len(results) == 0:
-    print("No trading opportunities found.")
-    quit()
+# ------------------------------------------
+# Load account
+# ------------------------------------------
 
-# Highest scoring stock
-best = results[0]
+account = load_account()
+
+# ------------------------------------------
+# Build latest price lookup
+# ------------------------------------------
+
+price_lookup = {}
+
+for stock in results:
+    price_lookup[stock["Ticker"]] = stock["Price"]
+
+# ------------------------------------------
+# Manage existing positions
+# ------------------------------------------
+
+check_positions(price_lookup)
+
+# ------------------------------------------
+# Find a stock we don't already own
+# ------------------------------------------
+
+best = None
+
+for stock in results:
+
+    already_owned = False
+
+    for position in account["positions"]:
+
+        if position["ticker"] == stock["Ticker"]:
+            already_owned = True
+            break
+
+    if not already_owned:
+        best = stock
+        break
+
+if best is None:
+
+    print("\nNo new trading opportunities.")
+    quit()
 
 ticker = best["Ticker"]
 price = best["Price"]
@@ -23,41 +66,28 @@ score = best["Score"]
 atr = best["ATR"]
 
 print(f"\nSelected Stock: {ticker}")
-print(f"Current Price : ${price:.2f}")
-print(f"Atlas Score   : {score}/7")
 
-# Build trade plan
 plan = create_trade_plan(
     price,
     atr,
-    score
+    score,
 )
 
-# Position sizing using website settings
 position = calculate_position_size(
     account_size=SETTINGS["account_size"],
     risk_percent=SETTINGS["risk_percent"],
     entry_price=plan["entry"],
-    stop_loss=plan["stop_loss"]
+    stop_loss=plan["stop_loss"],
 )
 
 shares = position["shares"]
 
-print("\nExecuting Paper Trade...\n")
-
 buy_stock(
-    ticker,
-    shares,
-    plan["entry"]
+    ticker=ticker,
+    shares=shares,
+    price=plan["entry"],
+    stop_loss=plan["stop_loss"],
+    take_profit=plan["take_profit"],
 )
 
-print("\nTrade Summary")
-print("-" * 40)
-print(f"Ticker        : {ticker}")
-print(f"Entry         : ${plan['entry']:.2f}")
-print(f"Stop Loss     : ${plan['stop_loss']:.2f}")
-print(f"Take Profit   : ${plan['take_profit']:.2f}")
-print(f"Shares        : {shares}")
-print(f"Risk Amount   : ${position['dollar_risk']:.2f}")
-print(f"Position Value: ${position['position_value']:.2f}")
-print(f"Confidence    : {plan['confidence']}%")
+print("\nTrade Complete")

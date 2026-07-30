@@ -59,11 +59,21 @@ def record_trade(action, ticker, shares, price):
     save_history(history)
 
 
-def buy_stock(ticker, shares, price):
+def buy_stock(
+    ticker,
+    shares,
+    price,
+    stop_loss,
+    take_profit,
+):
 
     account = load_account()
 
     cost = shares * price
+
+    if shares < 1:
+        print("❌ Position size is less than one share.")
+        return
 
     if cost > account["cash"]:
         print("❌ Not enough cash.")
@@ -75,7 +85,9 @@ def buy_stock(ticker, shares, price):
         {
             "ticker": ticker,
             "shares": shares,
-            "entry": price
+            "entry": price,
+            "stop_loss": stop_loss,
+            "take_profit": take_profit,
         }
     )
 
@@ -85,7 +97,7 @@ def buy_stock(ticker, shares, price):
         "BUY",
         ticker,
         shares,
-        price
+        price,
     )
 
     print(f"✅ Bought {shares} shares of {ticker} @ ${price:.2f}")
@@ -111,7 +123,7 @@ def sell_stock(ticker, price):
                 "SELL",
                 ticker,
                 position["shares"],
-                price
+                price,
             )
 
             print(f"✅ Sold {ticker} @ ${price:.2f}")
@@ -143,10 +155,11 @@ def show_account():
         print(
             f"{p['ticker']} | "
             f"{p['shares']} shares | "
-            f"Entry ${p['entry']:.2f}"
+            f"Entry ${p['entry']:.2f} | "
+            f"SL ${p['stop_loss']:.2f} | "
+            f"TP ${p['take_profit']:.2f}"
         )
 
 
 if __name__ == "__main__":
-
     show_account()

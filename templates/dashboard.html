@@ -15,157 +15,205 @@
 
 <div class="container">
 
-    <h1>ATLAS AI</h1>
+<h1>ATLAS AI</h1>
 
-    <div class="card">
+<div class="card">
 
-        <h2>Paper Account</h2>
+<h2>Portfolio Summary</h2>
 
-        <p><strong>Cash:</strong> ${{ "%.2f"|format(account.cash) }}</p>
-        <p><strong>Open Positions:</strong> {{ account.positions|length }}</p>
+<p><strong>Total Portfolio:</strong>
+${{ "%.2f"|format(portfolio.total_value) }}</p>
 
-    </div>
+<p><strong>Cash:</strong>
+${{ "%.2f"|format(portfolio.cash) }}</p>
 
-    <div class="card">
+<p><strong>Market Value:</strong>
+${{ "%.2f"|format(portfolio.market_value) }}</p>
 
-        <h2>Settings</h2>
+<p><strong>Unrealized P/L:</strong>
+${{ "%.2f"|format(portfolio.unrealized_pl) }}</p>
 
-        <form method="POST">
+<p><strong>Open Positions:</strong>
+{{ portfolio.positions|length }}</p>
 
-            <label>Account Size</label><br>
-            <input
-                type="number"
-                name="account_size"
-                value="{{ settings.account_size }}">
-            <br><br>
+</div>
 
-            <label>Risk Per Trade (%)</label><br>
-            <input
-                type="number"
-                name="risk_percent"
-                value="{{ settings.risk_percent }}">
-            <br><br>
 
-            <label>Minimum Atlas Score</label><br>
-            <input
-                type="number"
-                name="minimum_score"
-                value="{{ settings.minimum_score }}">
-            <br><br>
+<div class="card">
 
-            <button type="submit">
-                Save Settings
-            </button>
+<h2>Settings</h2>
 
-        </form>
+<form method="POST">
 
-    </div>
+<label>Account Size</label><br>
 
-    <div class="card">
+<input
+type="number"
+name="account_size"
+value="{{ settings.account_size }}">
 
-        <h2>Open Positions</h2>
+<br><br>
 
-        {% if account.positions %}
+<label>Risk Per Trade (%)</label><br>
 
-        <table>
+<input
+type="number"
+name="risk_percent"
+value="{{ settings.risk_percent }}">
 
-            <tr>
-                <th>Ticker</th>
-                <th>Shares</th>
-                <th>Entry Price</th>
-            </tr>
+<br><br>
 
-            {% for position in account.positions %}
+<label>Minimum Atlas Score</label><br>
 
-            <tr>
+<input
+type="number"
+name="minimum_score"
+value="{{ settings.minimum_score }}">
 
-                <td>{{ position.ticker }}</td>
-                <td>{{ position.shares }}</td>
-                <td>${{ "%.2f"|format(position.entry) }}</td>
+<br><br>
 
-            </tr>
+<button type="submit">
 
-            {% endfor %}
+Save Settings
 
-        </table>
+</button>
 
-        {% else %}
+</form>
 
-        <p>No open positions.</p>
+</div>
 
-        {% endif %}
 
-    </div>
+<div class="card">
 
-    <div class="card">
+<h2>Open Positions</h2>
 
-        <h2>Market Scanner</h2>
+{% if portfolio.positions %}
 
-        <table>
+<table>
 
-            <tr>
-                <th>Ticker</th>
-                <th>Score</th>
-                <th>Confidence</th>
-                <th>Signal</th>
-            </tr>
+<tr>
 
-            {% for stock in stocks %}
+<th>Ticker</th>
+<th>Shares</th>
+<th>Entry</th>
+<th>Current</th>
+<th>Value</th>
+<th>P/L</th>
 
-            <tr>
+</tr>
 
-                <td>{{ stock.Ticker }}</td>
-                <td>{{ stock.Score }}/7</td>
-                <td>{{ stock.Confidence }}%</td>
-                <td>{{ stock.Signal }}</td>
+{% for p in portfolio.positions %}
 
-            </tr>
+<tr>
 
-            {% endfor %}
+<td>{{ p.ticker }}</td>
 
-        </table>
+<td>{{ p.shares }}</td>
 
-    </div>
+<td>${{ "%.2f"|format(p.entry) }}</td>
 
-    <div class="card">
+<td>${{ "%.2f"|format(p.current) }}</td>
 
-        <h2>Trade History</h2>
+<td>${{ "%.2f"|format(p.value) }}</td>
 
-        {% if history %}
+<td>${{ "%.2f"|format(p.pnl) }}</td>
 
-        <table>
+</tr>
 
-            <tr>
-                <th>Date</th>
-                <th>Action</th>
-                <th>Ticker</th>
-                <th>Shares</th>
-                <th>Price</th>
-            </tr>
+{% endfor %}
 
-            {% for trade in history|reverse %}
+</table>
 
-            <tr>
+{% else %}
 
-                <td>{{ trade.date }}</td>
-                <td>{{ trade.action }}</td>
-                <td>{{ trade.ticker }}</td>
-                <td>{{ trade.shares }}</td>
-                <td>${{ "%.2f"|format(trade.price) }}</td>
+<p>No open positions.</p>
 
-            </tr>
+{% endif %}
 
-            {% endfor %}
+</div>
 
-        </table>
 
-        {% else %}
+<div class="card">
 
-        <p>No trades yet.</p>
+<h2>Market Scanner</h2>
 
-        {% endif %}
+<table>
 
-    </div>
+<tr>
+
+<th>Ticker</th>
+<th>Score</th>
+<th>Confidence</th>
+<th>Signal</th>
+
+</tr>
+
+{% for stock in stocks %}
+
+<tr>
+
+<td>{{ stock.Ticker }}</td>
+
+<td>{{ stock.Score }}/7</td>
+
+<td>{{ stock.Confidence }}%</td>
+
+<td>{{ stock.Signal }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+
+<div class="card">
+
+<h2>Trade History</h2>
+
+{% if history %}
+
+<table>
+
+<tr>
+
+<th>Date</th>
+<th>Action</th>
+<th>Ticker</th>
+<th>Shares</th>
+<th>Price</th>
+
+</tr>
+
+{% for trade in history|reverse %}
+
+<tr>
+
+<td>{{ trade.date }}</td>
+
+<td>{{ trade.action }}</td>
+
+<td>{{ trade.ticker }}</td>
+
+<td>{{ trade.shares }}</td>
+
+<td>${{ "%.2f"|format(trade.price) }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% else %}
+
+<p>No trades yet.</p>
+
+{% endif %}
+
+</div>
 
 </div>
 

@@ -10,6 +10,9 @@ from src.paper_trading.paper_trader import (
     load_account,
     load_history,
 )
+from src.paper_trading.portfolio_manager import (
+    get_portfolio_summary,
+)
 
 project_root = Path(__file__).resolve().parent.parent.parent
 
@@ -44,12 +47,20 @@ def dashboard():
     account = load_account()
     history = load_history()
 
+    price_lookup = {}
+
+    for stock in results:
+        price_lookup[stock["Ticker"]] = stock["Price"]
+
+    portfolio = get_portfolio_summary(price_lookup)
+
     return render_template(
         "dashboard.html",
         stocks=results,
         settings=SETTINGS,
         account=account,
         history=history,
+        portfolio=portfolio,
     )
 
 
