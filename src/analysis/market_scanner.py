@@ -10,6 +10,12 @@ from src.indicators.atr import add_atr
 
 from src.analysis.scorer import score_stock
 from src.analysis.quality_filter import QualityFilter
+from src.analysis.ranking_engine import RankingEngine
+from src.analysis.trade_quality import TradeQuality
+from src.analysis.position_quality import PositionQuality
+from src.analysis.trade_validator import TradeValidator
+from src.analysis.watchlist_manager import WatchlistManager
+
 from src.strategies.strategy_manager import get_active_strategy
 from src.reports.watchlist_report import WatchlistReport
 
@@ -28,7 +34,7 @@ universe_file = project_root / "data" / "universe.csv"
 
 strategy = get_active_strategy()
 
-results = []
+watchlist = WatchlistManager()
 
 # -------------------------------------------------
 # Load Universe
@@ -151,37 +157,85 @@ for index, ticker in enumerate(universe["Ticker"], start=1):
         # Strategy Evaluation
         # -----------------------------------------
 
-        signal = strategy.evaluate(score, market_data)
+        signal = strategy.evaluate(score, market_data)        
 
         # -----------------------------------------
-        # Atlas Rank
+        # Advanced Ranking
         # -----------------------------------------
 
-        signal_bonus = {
-            "BUY": 25,
-            "WATCH": 10,
-            "AVOID": 0,
-        }[signal]
-
-        atlas_rank = (
-            score * 100
-            + confidence
-            + signal_bonus
+        atlas_rank = RankingEngine.calculate(
+            score=score,
+            confidence=confidence,
+            signal=signal,
+            market_data=market_data,
         )
 
-        results.append({
-            "Ticker": ticker,
-            "Price": latest["Close"],
-            "ATR": latest["ATR"],
-            "Score": score,
-            "Confidence": confidence,
-            "Signal": signal,
-            "Rank": atlas_rank,
-        })
+        # -----------------------------------------
+        # Trade Quality
+        # -----------------------------------------
+
+        trade_quality = TradeQuality.evaluate(
+            score,
+            market_data,
+        )
+
+        # -----------------------------------------
+        # Temporary Trade Levels
+        #
+        # These will become strategy-specific in
+        # Phase 6.
+        # -----------------------------------------
+
+        entry = latest["Close"]
+        stop = entry - (latest["ATR"] * 2)
+        target = entry + (latest["ATR"] * 4)
+
+        # -----------------------------------------
+        # Position Quality
+        # -----------------------------------------
+
+        position_quality = PositionQuality.evaluate(
+            entry,
+            stop,
+            target,
+        )
+
+        # -----------------------------------------
+        # Trade Validation
+        # -----------------------------------------
+
+        validation = TradeValidator.validate(
+            entry,
+            stop,
+            target,
+        )
+
+        if not validation["valid"]:
+
+            print("   Rejected by Trade Validator")
+            continue
+
+        # -----------------------------------------
+        # Add To Watchlist
+        # -----------------------------------------
+
+        watchlist.add(
+            ticker=ticker,
+            signal=signal,
+            atlas_score=score,
+            confidence=confidence,
+            trade_quality=trade_quality,
+            position_quality=position_quality,
+            atlas_rank=atlas_rank,
+            price=latest["Close"],
+        )
 
         print(
-            f"   ✓ Score: {score}/7   "
-            f"Signal: {signal}"
+            f"   ✓ "
+            f"Score {score}/7   "
+            f"{signal}   "
+            f"Quality {trade_quality['grade']}   "
+            f"RR {position_quality['rr']}"
         )
 
     except Exception as e:
@@ -189,15 +243,12 @@ for index, ticker in enumerate(universe["Ticker"], start=1):
         print(f"   ERROR: {e}")
 
 # -------------------------------------------------
-# Sort Results
+# Sort Watchlist
 # -------------------------------------------------
 
-results = sorted(
-    results,
-    key=lambda x: x["Rank"],
-    reverse=True,
-)
+watchlist.sort()
 
+results = watchlist.get_all()
 # -------------------------------------------------
 # Results
 # -------------------------------------------------
@@ -207,12 +258,20 @@ print("=" * 60)
 print("SCAN COMPLETE")
 print("=" * 60)
 
-print(f"Stocks Scanned : {len(results)}")
+print(f"Universe Size   : {total}")
+print(f"Valid Setups    : {watchlist.count()}")
 
-WatchlistReport.display(
-    results,
-    total,
-)
+if watchlist.count() == 0:
+
+    print()
+    print("No valid trading opportunities found.")
+
+else:
+
+    WatchlistReport.display(
+        results,
+        total,
+    )
 
 print()
 print("=" * 60)

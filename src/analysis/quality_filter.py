@@ -4,14 +4,14 @@ class QualityFilter:
     # Score
     # ---------------------------------
 
-    MIN_SCORE = 4
+    MIN_SCORE = 3
 
     # ---------------------------------
     # Liquidity
     # ---------------------------------
 
     MIN_AVG_VOLUME = 500000
-    MIN_RELATIVE_VOLUME = 1.20
+    MIN_RELATIVE_VOLUME = 1.00
 
     # ---------------------------------
     # Volatility
