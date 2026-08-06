@@ -9,7 +9,9 @@ from src.indicators.volume import add_volume
 from src.indicators.atr import add_atr
 
 from src.analysis.scorer import score_stock
+from src.analysis.quality_filter import QualityFilter
 from src.strategies.strategy_manager import get_active_strategy
+from src.reports.watchlist_report import WatchlistReport
 
 print("=" * 60)
 print("ATLAS MARKET SCANNER")
@@ -110,38 +112,49 @@ for index, ticker in enumerate(universe["Ticker"], start=1):
         confidence = round(score / 7 * 100)
 
         # -----------------------------------------
-        # Market Data For Strategy
+        # Market Data
         # -----------------------------------------
 
         market_data = {
+            "open": latest["Open"],
+            "previous_close": df.iloc[-2]["Close"],
+            "daily_range_percent": (
+                (latest["High"] - latest["Low"])
+                / latest["Close"]
+            ) * 100,
             "close": latest["Close"],
             "high": latest["High"],
             "low": latest["Low"],
-
             "sma20": latest["SMA_20"],
             "sma50": latest["SMA_50"],
-
             "rsi": latest["RSI_14"],
-
             "macd": latest["MACD"],
             "macd_signal": latest["MACD_SIGNAL"],
-
             "adx": latest["ADX"],
-
             "volume": latest["Volume"],
             "average_volume": average_volume,
             "vol_ratio": latest["VOL_RATIO"],
-
             "atr": latest["ATR"],
-
             "twenty_day_high": twenty_day_high,
             "twenty_day_low": twenty_day_low,
         }
 
+        # -----------------------------------------
+        # Quality Filter
+        # -----------------------------------------
+
+        if not QualityFilter.passes(score, market_data):
+            print("   Rejected by Quality Filter")
+            continue
+
+        # -----------------------------------------
+        # Strategy Evaluation
+        # -----------------------------------------
+
         signal = strategy.evaluate(score, market_data)
 
         # -----------------------------------------
-        # Atlas Ranking
+        # Atlas Rank
         # -----------------------------------------
 
         signal_bonus = {
@@ -167,8 +180,8 @@ for index, ticker in enumerate(universe["Ticker"], start=1):
         })
 
         print(
-            f"   ✓ Score: {score}/7"
-            f"   Signal: {signal}"
+            f"   ✓ Score: {score}/7   "
+            f"Signal: {signal}"
         )
 
     except Exception as e:
@@ -183,7 +196,9 @@ results = sorted(
     results,
     key=lambda x: x["Rank"],
     reverse=True,
-)# -------------------------------------------------
+)
+
+# -------------------------------------------------
 # Results
 # -------------------------------------------------
 
@@ -193,33 +208,11 @@ print("SCAN COMPLETE")
 print("=" * 60)
 
 print(f"Stocks Scanned : {len(results)}")
-print()
 
-if not results:
-    print("No valid trading opportunities were found.")
-else:
-
-    print(
-        f"{'Rank':<6}"
-        f"{'Ticker':<10}"
-        f"{'Score':<10}"
-        f"{'Confidence':<15}"
-        f"{'Signal':<10}"
-        f"{'Atlas Rank'}"
-    )
-
-    print("-" * 70)
-
-    for position, stock in enumerate(results, start=1):
-
-        print(
-            f"{position:<6}"
-            f"{stock['Ticker']:<10}"
-            f"{str(stock['Score']) + '/7':<10}"
-            f"{str(stock['Confidence']) + '%':<15}"
-            f"{stock['Signal']:<10}"
-            f"{stock['Rank']}"
-        )
+WatchlistReport.display(
+    results,
+    total,
+)
 
 print()
 print("=" * 60)
